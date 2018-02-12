@@ -1,14 +1,13 @@
-var { defineSupportCode } = require('cucumber');
+import { BeforeAll, AfterAll, setWorldConstructor } from 'cucumber';
 const fs                   = require('fs');
-const createTestCafe       = require('testcafe');
-const testControllerHolder = require('../support/testControllerHolder');
+const createTestCafe = require('testcafe');
+import testControllerHolder from '../support/testControllerHolder';
 
 var testcafe = null;
 var DELAY    = 5000;
-
 function createTestFile () {
     fs.writeFileSync('test.js',
-        'import testControllerHolder from "./features/support/testControllerHolder.js";\n\n' +
+        'import testControllerHolder from "./features/support/testControllerHolder";\n\n' +
 
         'fixture("fixture")\n' +
 
@@ -36,17 +35,20 @@ function runTest () {
         });
 }
 
-defineSupportCode(function ({ registerHandler }) {
-    registerHandler('BeforeFeatures', function (features, callback) {
-        createTestFile();
-        runTest();
+function CustomWorld () {
+    this.waitForTestController = testControllerHolder.get;
+}
 
-        setTimeout(callback, DELAY);
-    });
+setWorldConstructor(CustomWorld);
 
-    registerHandler('AfterFeatures', function (features, callback) {
-        testControllerHolder.free();
-        fs.unlinkSync('test.js');
-        setTimeout(callback, DELAY);
-    });
+BeforeAll(function (callback) {
+    createTestFile();
+    runTest();
+    setTimeout(callback, DELAY);
+});
+
+AfterAll(function (callback) {
+    testControllerHolder.free();
+    fs.unlinkSync('test.js');
+    setTimeout(callback, DELAY);
 });

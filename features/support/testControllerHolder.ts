@@ -4,7 +4,7 @@ var testControllerHolder = {
     captureResolver: null,
     getResolver:     null,
 
-    capture: function (t) {
+    capture: function (t: TestController) {
         testControllerHolder.testController = t;
 
         if (testControllerHolder.getResolver)
@@ -18,8 +18,9 @@ var testControllerHolder = {
     free: function () {
         testControllerHolder.testController = null;
 
-        if (testControllerHolder.captureResolver)
+        if (testControllerHolder.captureResolver) {
             testControllerHolder.captureResolver();
+        }
     },
 
     get: function () {
@@ -32,4 +33,4 @@ var testControllerHolder = {
     }
 };
 
-module.exports = testControllerHolder;
+export default testControllerHolder;
